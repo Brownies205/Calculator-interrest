@@ -1,0 +1,182 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My little games</title>
+    <link rel="stylesheet" href="designgames.css">
+    <script src="games.js"></script>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+  <!-- Audio element for background music -->
+  <audio id="bgMusic" loop>
+    <source src="Maple - Dyalla.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Music control button -->
+  <button class="music-toggle" id="music-btn" title="Toggle music">🔊 Music</button>
+
+  <div class="designgames">
+        <h1 id="main">MATH GAMESS!!!</h1>
+        <p>Click the button below to play a game!</p>
+        <button onclick="startGame()">Play Game</button>
+        <div id="gameArea"></div>
+    </div>
+
+    <script>
+        let gameState = {
+            score: 0,
+            streak: 0,
+            difficulty: 'easy',
+            isPlaying: false,
+            timeLeft: 60,
+            totalTime: 60,
+            currentProblem: null
+        };
+
+        function startGame() {
+            const gameArea = document.getElementById('gameArea');
+            gameArea.innerHTML = `
+                <div id="mathGameContainer">
+                    <div id="gameSetup">
+                        <h2>Math Challenge Game</h2>
+                        <p>Select difficulty level:</p>
+                        <button onclick="playGame('easy')" class="diffBtn">Easy (1-10)</button>
+                        <button onclick="playGame('medium')" class="diffBtn">Medium (1-50)</button>
+                        <button onclick="playGame('hard')" class="diffBtn">Hard (1-100)</button>
+                    </div>
+                    <div id="gameScreen" style="display:none;">
+                        <div class="gameHeader">
+                            <div><strong>Score:</strong> <span id="score">0</span></div>
+                            <div><strong>Streak:</strong> <span id="streak">0</span></div>
+                            <div><strong>Time:</strong> <span id="timer">60</span>s</div>
+                        </div>
+                        <div class="problemDisplay">
+                            <div id="problem" style="font-size:32px; margin:20px 0; font-weight:bold;"></div>
+                            <input type="number" id="answerInput" placeholder="Enter your answer" style="font-size:20px; padding:10px; width:200px;">
+                            <button onclick="checkAnswer()" class="submitBtn">Submit (Enter)</button>
+                        </div>
+                        <div id="feedback" style="margin-top:20px; font-size:18px;"></div>
+                    </div>
+                    <div id="gameOver" style="display:none;">
+                        <h2>Game Over!</h2>
+                        <p>Final Score: <strong id="finalScore">0</strong></p>
+                        <p>Longest Streak: <strong id="finalStreak">0</strong></p>
+                        <button onclick="resetGame()" class="diffBtn">Play Again</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function playGame(difficulty) {
+            gameState.difficulty = difficulty;
+            gameState.score = 0;
+            gameState.streak = 0;
+            gameState.timeLeft = 60;
+            gameState.isPlaying = true;
+
+            document.getElementById('gameSetup').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            document.getElementById('gameOver').style.display = 'none';
+
+            generateProblem();
+            document.getElementById('answerInput').focus();
+            startTimer();
+        }
+
+        function generateProblem() {
+            const max = gameState.difficulty === 'easy' ? 10 : gameState.difficulty === 'medium' ? 50 : 100;
+            const operators = ['+', '-', '*', '/'];
+            const operator = operators[Math.floor(Math.random() * operators.length)];
+            
+            let num1 = Math.floor(Math.random() * max) + 1;
+            let num2 = Math.floor(Math.random() * max) + 1;
+
+            // Avoid negative results for subtraction and division issues
+            if (operator === '-' && num1 < num2) [num1, num2] = [num2, num1];
+            if (operator === '/' && num2 === 0) num2 = 1;
+
+            gameState.currentProblem = { num1, num2, operator };
+            const problem = `${num1} ${operator} ${num2}`;
+            document.getElementById('problem').textContent = problem;
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('answerInput').value = '';
+            document.getElementById('answerInput').focus();
+        }
+
+        function checkAnswer() {
+            if (!gameState.isPlaying) return;
+
+            const userAnswer = parseFloat(document.getElementById('answerInput').value);
+            if (isNaN(userAnswer)) {
+                document.getElementById('feedback').textContent = '⚠️ Please enter a valid number!';
+                document.getElementById('feedback').style.color = '#ff6b6b';
+                return;
+            }
+
+            const { num1, num2, operator } = gameState.currentProblem;
+            let correctAnswer;
+
+            switch(operator) {
+                case '+': correctAnswer = num1 + num2; break;
+                case '-': correctAnswer = num1 - num2; break;
+                case '*': correctAnswer = num1 * num2; break;
+                case '/': correctAnswer = Math.round((num1 / num2) * 100) / 100; break;
+            }
+
+            const isCorrect = Math.abs(userAnswer - correctAnswer) < 0.01; // Allow small floating point errors
+
+            if (isCorrect) {
+                gameState.score += 10;
+                gameState.streak += 1;
+                document.getElementById('feedback').textContent = `✅ Correct! (+10 points)`;
+                document.getElementById('feedback').style.color = '#51cf66';
+            } else {
+                gameState.streak = 0;
+                document.getElementById('feedback').textContent = `❌ Wrong! Answer: ${correctAnswer}`;
+                document.getElementById('feedback').style.color = '#ff6b6b';
+            }
+
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('streak').textContent = gameState.streak;
+
+            setTimeout(() => {
+                if (gameState.isPlaying) generateProblem();
+            }, 1500);
+        }
+
+        function startTimer() {
+            const timerInterval = setInterval(() => {
+                gameState.timeLeft--;
+                document.getElementById('timer').textContent = gameState.timeLeft;
+
+                if (gameState.timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function endGame() {
+            gameState.isPlaying = false;
+            document.getElementById('gameScreen').style.display = 'none';
+            document.getElementById('gameOver').style.display = 'block';
+            document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('finalStreak').textContent = gameState.streak;
+        }
+
+        function resetGame() {
+            document.getElementById('gameArea').innerHTML = '';
+            startGame();
+        }
+
+        // Allow Enter key to submit answer
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && gameState.isPlaying) {
+                checkAnswer();
+            }
+        });
+    </script>
+    
+</body>
+</html>

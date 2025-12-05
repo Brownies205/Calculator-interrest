@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Calculator with Notepad</title>
+    
+    <script src="file.js">
+
+    </script>
+</head>
+<body>
+  
+     <div id="intro-overlay" role="dialog" aria-modal="true">
+        <div id="intro-modal">
+            <h1>Welcome to Calculator with Notepad</h1>
+            <p>Use the calculator on the left to perform basic arithmetic. Type or use the buttons, then press = to evaluate. The notepad on the right saves quick notes.</p>
+            <ul>
+                <li>Click numbers and operators to build an expression.</li>
+                <li>Press C to clear, = to calculate.</li>
+                <li>Your notes are saved in the notepad area.</li>
+            </ul>
+            <label><input type="checkbox" id="intro-hide"> Don't show again</label><br>
+            <button id="intro-close">ok!</button>
+        </div>
+    </div>
+
+       <!-- Audio element for background music -->
+  <audio id="bgMusic" loop>
+    <source src="Chat Roulette - Single Friend.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Music control button -->
+  <button class="music-toggle" id="music-btn" title="Toggle music">🔊 Music</button>
+
+  <div class="theme-toggle" aria-hidden="false">
+    <label><input type="checkbox" id="theme-toggle"> Night</label>
+  </div>
+
+  <!-- ...existing code... -->
+  <script>
+    // ...existing code...
+
+    // Theme toggle behavior (day/night) - persists in localStorage
+    (function() {
+      const toggle = document.getElementById('theme-toggle');
+      const KEY = 'calcTheme'; // stored value: 'day' or 'night'
+
+      function applyTheme(theme) {
+        document.body.classList.toggle('night', theme === 'night');
+        if (toggle) toggle.checked = theme === 'night';
+      }
+
+      // load saved theme (default: day)
+      const saved = localStorage.getItem(KEY) || 'day';
+      applyTheme(saved);
+
+      if (toggle) {
+        toggle.addEventListener('change', function() {
+          const theme = this.checked ? 'night' : 'day';
+        applyTheme(theme);
+          localStorage.setItem(KEY, theme);
+        });
+      }
+    })();
+
+    // Music control functionality
+    (function() {
+      const audio = document.getElementById('bgMusic');
+      const btn = document.getElementById('music-btn');
+      const KEY = 'calcMusicMuted';
+
+      // Set initial volume and playback state
+      audio.volume = 0.3; // 30% volume
+
+      // Load saved music preference
+      const isMuted = localStorage.getItem(KEY) === '1';
+      if (isMuted) {
+        audio.muted = true;
+        btn.classList.add('muted');
+        btn.textContent = '🔇 Music';
+      } else {
+        // Try to play music (may fail due to browser autoplay policy)
+        audio.play().catch(err => {
+          console.log('Autoplay blocked. Click music button to start.');
+        });
+      }
+
+      // Toggle music on button click
+      if (btn) {
+        btn.addEventListener('click', function() {
+          if (audio.muted) {
+            audio.muted = false;
+            audio.play();
+            btn.classList.remove('muted');
+            btn.textContent = '🔊 Music';
+            localStorage.setItem(KEY, '0');
+          } else {
+            audio.muted = true;
+            btn.classList.add('muted');
+            btn.textContent = '🔇 Music';
+            localStorage.setItem(KEY, '1');
+          }
+        });
+      }
+    })();
+
+    // ...existing code...
+    </script>
+
+    <div class="designcalculator" href="http://127.0.0.1:3000/Calculetor.html?serverWindowId=521b7a7e-e651-45a9-b84e-39cf0e1b4b2c">
+        <div class="calculator">
+           <h2>Calculator</h2>
+           <input type="text" id="display" readonly>
+           <br>
+           <button onclick="append('7')">7</button>
+           <button onclick="append('8')">8</button>
+           <button onclick="append('9')">9</button>
+           <button onclick="calculate('/')">/</button>
+           <br>
+           <button onclick="append('4')">4</button>
+           <button onclick="append('5')">5</button>
+           <button onclick="append('6')">6</button>
+           <button onclick="calculate('*')">*</button>
+           <br>
+           <button onclick="append('1')">1</button>
+           <button onclick="append('2')">2</button>
+           <button onclick="append('3')">3</button>
+           <button onclick="calculate('-')">-</button>
+           <br>
+           <button onclick="append('0')">0</button>
+           <button onclick="append('.')">.</button>
+           <button onclick="clearDisplay()">C</button>
+           <button onclick="calculate('+')">+</button>
+           <br>
+           <button onclick="equals()" style="width: 140px;">=</button>
+
+           <!-- Interest calculator UI -->
+
+           <hr>
+           <div class="boxforinterest">
+              <h3>Interest Calculator</h3>
+              <label>Principal (P): <input id="p" type="number" step="any" min="0" placeholder="e.g. 1000"></label><br>
+              <label>Rate (%) per year (r): <input id="r" type="number" step="any" min="0" placeholder="e.g. 5"></label><br>
+              <label>Time (years) (t): <input id="t" type="number" step="any" min="0" placeholder="e.g. 3"></label><br>
+
+              <label>Type:
+                <select id="interest-type" aria-label="Interest type">
+                 <option value="simple">Simple Interest</option>
+                 <option value="compound">Compound Interest</option>
+                </select>
+              </label><br>
+
+              <label id="freq-label" style="display:none">Compounds per year (n):
+                <select id="n" aria-label="compounding frequency">
+                 <option value="1">1</option>
+                 <option value="2">2</option>
+                 <option value="4">4</option>
+                 <option value="12">12</option>
+                  <option value="365">365</option>
+                </select>
+              </label><br>
+
+              <button type="button" id="calc-interest">Calculate Interest</button>
+              <div id="interest-result" aria-live="polite" style="margin-top:8px;"></div>
+            </div>
+          </div>
+    </div>    
+<!-- ...existing code... -->
+    </div>    
+    <div class="notepad">
+        <h2>Notepad</h2>
+        <textarea id="notes" placeholder="Write your notes here..."></textarea>
+    </div>
+
+    <div class="link-button" style="margin-top:12px;">
+       <button id="open-site" type="button" href="Games.html"> + </button>
+    </div>
+    
+    <script>
+        let display = document.getElementById('display');
+        let expression = '';
+
+        function append(value) {
+            expression += value;
+            display.value = expression;
+        }
+
+        function calculate(operator) {
+            expression += operator;
+            display.value = expression;
+        }
+
+        function equals() {
+            try {
+                display.value = eval(expression);
+                expression = display.value;
+            } catch {
+                display.value = 'Error';
+                expression = '';
+            }
+        }
+
+        function clearDisplay() {
+            expression = '';
+            display.value = '';
+        }
+         function clearDisplay() {
+            expression = '';
+            display.value = '';
+        }
+
+         // Interest calculator logic
+        (function() {
+          const typeEl = document.getElementById('interest-type');
+          const freqLabel = document.getElementById('freq-label');
+          const calcBtn = document.getElementById('calc-interest');
+          const resultEl = document.getElementById('interest-result');
+
+          if (typeEl) {
+            typeEl.addEventListener('change', () => {
+              freqLabel.style.display = typeEl.value === 'compound' ? '' : 'none';
+            });
+          }
+
+          if (calcBtn) {
+            calcBtn.addEventListener('click', () => {
+              const p = parseFloat(document.getElementById('p').value);
+              const r = parseFloat(document.getElementById('r').value);
+              const t = parseFloat(document.getElementById('t').value);
+              const type = document.getElementById('interest-type').value;
+ 
+              if (Number.isNaN(p) || Number.isNaN(r) || Number.isNaN(t)) {
+                resultEl.textContent = 'Please enter valid numbers for principal, rate and time.';
+                return;
+              }
+              if (p < 0 || r < 0 || t < 0) {
+                resultEl.textContent = 'Values must be non-negative.';
+                return;
+              }
+                if (type === 'simple') {
+                const interest = p * (r / 100) * t;
+                const amount = p + interest;
+                resultEl.innerHTML = `Simple interest: ${interest.toFixed(2)}<br>Amount (P + I): ${amount.toFixed(2)}`;
+              } else {
+                const n = parseFloat(document.getElementById('n').value) || 1;
+                const amount = p * Math.pow(1 + (r / 100) / n, n * t);
+                const interest = amount - p;
+                resultEl.innerHTML = `Compound interest: ${interest.toFixed(2)}<br>Amount: ${amount.toFixed(2)} (compounded ${n}×/year)`;
+              }
+            });
+          }
+        })();
+
+        
+        // Intro modal behavior
+        (function() {
+            const overlay = document.getElementById('intro-overlay');
+            const closeBtn = document.getElementById('intro-close');
+            const hideCheckbox = document.getElementById('intro-hide');
+            const HIDE_KEY = 'hideCalcIntro';
+
+            function closeIntro() {
+                if (hideCheckbox && hideCheckbox.checked) {
+                    localStorage.setItem(HIDE_KEY, '1');
+                }
+                if (overlay) overlay.style.display = 'none';
+            }
+
+            // Hide on load if user opted out
+            if (localStorage.getItem(HIDE_KEY) === '1' && overlay) {
+                overlay.style.display = 'none';
+            }
+
+            if (closeBtn) closeBtn.addEventListener('click', closeIntro);
+            if (overlay) {
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === overlay) closeIntro(); // click outside modal closes it
+                });
+            }
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeIntro(); // ESC closes modal
+            });
+        })();
+
+        // Notepad save/load behavior
+        (function() {
+            const notes = document.getElementById('notes');
+            const NOTES_KEY = 'calcNotes';
+
+            // Load saved notes
+            notes.value = localStorage.getItem(NOTES_KEY) || '';
+
+            // Save notes on input change
+            notes.addEventListener('input', function() {
+                localStorage.setItem(NOTES_KEY, this.value);
+            });
+        })();
+
+        document.getElementById('open-site').addEventListener('click', function() {
+    // open in new tab:
+    window.open('file:///C:/Users/adamin/OneDrive/Desktop/Website%20made%20by%20group%202%20MAWD/Games.html', '_blank', 'noopener,noreferrer');
+    // or open in same tab:
+    // window.location.href = 'file:///C:/Users/adamin/OneDrive/Desktop/Website%20made%20by%20group%202%20MAWD/Games.html';
+  });
+      // ...existing code...
+      
+        
+      </script>
+
+    <div id ="log-overlay" role="dialog" aria-modal="true" aria-hidden="true">Hello, we are Group 2 from mawd 11 hehehe come<br> come on try!
+      </div>
+
+      <script>
+      (function(){
+        // Simple client-side logger: stores entries in localStorage and exposes Logger.log()
+        const KEY = 'appLogs';
+        function now() { return new Date().toISOString(); }
+
+        function load() {
+          try { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
+          catch(e) { return []; }
+        }
+        function save(arr) { try { localStorage.setItem(KEY, JSON.stringify(arr)); } catch(e) { console.warn('Could not save logs', e); } }
+
+        const logs = load();
+
+        function renderEntry(e){
+          const msg = typeof e.msg === 'string' ? e.msg : JSON.stringify(e.msg);
+          const meta = e.meta ? `<div class="log-meta">${escapeHtml(JSON.stringify(e.meta))}</div>` : '';
+          return `<div class="log-entry"><div class="log-meta">${escapeHtml(e.t)} • ${escapeHtml(e.type)}</div><div class="log-body">${escapeHtml(msg)}</div>${meta}</div>`;
+        }
+
+        function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+        function updateList(){
+          const list = document.getElementById('log-list');
+          if(!list) return;
+          // show latest first
+          const recent = logs.slice(-500).reverse();
+          list.innerHTML = recent.map(renderEntry).join('\n') || '<div style="padding:12px;color:rgba(0,0,0,0.5)">No logs yet</div>';
+        }
+
+        window.Logger = {
+          log(type, msg, meta){
+            const entry = { t: now(), type: type || 'info', msg: msg === undefined ? '' : msg, meta: meta || null };
+            logs.push(entry);
+            save(logs);
+            try { console.log('[APP LOG]', entry); } catch(e){}
+            updateList();
+          },
+          getAll(){ return logs.slice(); },
+          clear(){ logs.length = 0; save(logs); updateList(); }
+        };
+
+        // Wire up log modal UI
+        const overlay = document.getElementById('log-overlay');
+        const openBtn = document.getElementById('open-logs');
+        const closeBtn = document.getElementById('close-logs');
+        const downloadBtn = document.getElementById('download-logs');
+        const copyBtn = document.getElementById('copy-logs');
+        const clearBtn = document.getElementById('clear-logs');
+
+        function openLogs(){ if(overlay){ overlay.style.display='flex'; overlay.setAttribute('aria-hidden','false'); updateList(); } }
+        function closeLogs(){ if(overlay){ overlay.style.display='none'; overlay.setAttribute('aria-hidden','true'); } }
+
+        if(openBtn) openBtn.addEventListener('click', openLogs);
+        if(closeBtn) closeBtn.addEventListener('click', closeLogs);
+        if(overlay) overlay.addEventListener('click', function(e){ if(e.target === overlay) closeLogs(); });
+
+        if(downloadBtn) downloadBtn.addEventListener('click', function(){
+          const data = JSON.stringify(logs, null, 2);
+          const blob = new Blob([data], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url; a.download = 'app-logs.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+        });
+
+        if(copyBtn) copyBtn.addEventListener('click', function(){
+          const txt = JSON.stringify(logs, null, 2);
+          if(navigator.clipboard) navigator.clipboard.writeText(txt).then(()=> { window.Logger.log('ui','copied logs to clipboard'); });
+          else { alert('Clipboard API not available'); }
+        });
+
+        if(clearBtn) clearBtn.addEventListener('click', function(){ if(confirm('Clear all logs?')){ window.Logger.clear(); window.Logger.log('ui','cleared logs'); } });
+
+        // Hook into existing behaviors via small wrappers / additional listeners
+        try {
+          // append
+          if(window.append){ const _append = window.append; window.append = function(v){ _append(v); try{ window.Logger.log('calculator.append', v, {display: (document.getElementById('display')||{}).value}); }catch(e){} }; }
+
+          // calculate (for operator buttons)
+          if(window.calculate){ const _calc = window.calculate; window.calculate = function(op){ _calc(op); try{ window.Logger.log('calculator.operator', op, {display: (document.getElementById('display')||{}).value}); }catch(e){} }; }
+
+          // equals
+          if(window.equals){ const _eq = window.equals; window.equals = function(){ try{ _eq(); window.Logger.log('calculator.equals', (document.getElementById('display')||{}).value); }catch(e){ window.Logger.log('calculator.equals','error'); } }; }
+
+          // clearDisplay
+          if(window.clearDisplay){ const _clear = window.clearDisplay; window.clearDisplay = function(){ _clear(); try{ window.Logger.log('calculator.clear', 'display cleared'); }catch(e){} }; }
+        } catch(e) { console.warn('Could not wrap functions for logging', e); }
+
+        // Notepad input logging
+        (function(){ const notes = document.getElementById('notes'); if(notes){ notes.addEventListener('input', function(){ window.Logger.log('notes.input', 'notes changed', {length: this.value.length}); }); } })();
+
+        // Theme toggle
+        (function(){ const tog = document.getElementById('theme-toggle'); if(tog){ tog.addEventListener('change', function(){ window.Logger.log('theme.toggle', this.checked ? 'night' : 'day'); }); } })();
+
+        // Intro modal close
+        (function(){ const closeIntro = document.getElementById('intro-close'); if(closeIntro){ closeIntro.addEventListener('click', function(){ window.Logger.log('intro.close','user closed intro'); }); } })();
+
+        // Interest calculation: log inputs and result when the button is clicked
+        (function(){ const calcBtn = document.getElementById('calc-interest'); const resultEl = document.getElementById('interest-result'); if(calcBtn){ calcBtn.addEventListener('click', function(){
+            const p = document.getElementById('p') ? document.getElementById('p').value : null;
+            const r = document.getElementById('r') ? document.getElementById('r').value : null;
+            const t = document.getElementById('t') ? document.getElementById('t').value : null;
+            const type = document.getElementById('interest-type') ? document.getElementById('interest-type').value : null;
+            setTimeout(function(){ // small delay so result text is set by existing handler
+              window.Logger.log('interest.calc', (resultEl && resultEl.textContent) || 'calc run', {p,r,t,type});
+            }, 120);
+          }); }
+        })();
+
+        // Open-site button logging
+        (function(){ const openSite = document.getElementById('open-site'); if(openSite){ openSite.addEventListener('click', function(){ window.Logger.log('navigation.open-site','opened external site'); }); } })();
+
+        // Initial render
+        updateList();
+      })();
+      </script>
+
+    </body>
+    </html>
